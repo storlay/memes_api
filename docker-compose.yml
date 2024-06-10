@@ -1,0 +1,8 @@
+services:
+  webapp:
+    build:
+      context: .
+    container_name: webapp
+    command: /docker/webapp.sh
+    ports:
+      - "8000:8000"
