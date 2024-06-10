@@ -12,17 +12,40 @@ services:
       - ./:/memes_app
     depends_on:
       - db
+      - minio
+    networks:
+      - memes_net
 
   db:
     image: postgres:16
-    container_name: db
+    container_name: postgres
     env_file:
       - ./.env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - memes_net
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    command: server /data --console-address ":9001"
+    env_file:
+      - ./.env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - memes_net
 
 
 volumes:
   postgres_data:
+  minio_data:
+
+networks:
+  memes_net:
