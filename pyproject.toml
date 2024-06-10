@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "mems-api"
+name = "memes-api"
 version = "0.1.0"
-description = ""
+description = "Memes API"
 authors = ["Dmitrii Ivanov <dmitriy.site1@gmail.com>"]
 readme = "README.md"
 
@@ -12,6 +12,7 @@ alembic = "^1.13.1"
 asyncpg = "^0.29.0"
 sqlalchemy = "^2.0.30"
 gunicorn = "^22.0.0"
+black = "^24.4.2"
 
 
 [build-system]
