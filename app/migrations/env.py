@@ -5,10 +5,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.db.db import Base, DATABASE_URL
+from db.db import Base, DATABASE_URL
 
 # Models
-from app.memes.models import Memes  # noqa
+from memes.models import Memes  # noqa
 
 config = context.config
 

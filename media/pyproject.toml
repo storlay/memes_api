@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "media api"
+version = "0.1.0"
+description = "Media API"
+authors = ["Dmitrii Ivanov <dmitriy.site1@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.111.0"
+gunicorn = "^22.0.0"
+aiobotocore = "^2.13.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

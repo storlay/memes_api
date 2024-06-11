@@ -1,18 +1,16 @@
 services:
   webapp:
     build:
-      context: .
+      context: ./app
     container_name: webapp
     env_file:
       - ./.env
-    command: /docker/webapp.sh
+    command: ./entrypoint.sh
     ports:
       - "8000:8000"
-    volumes:
-      - ./:/memes_app
     depends_on:
       - db
-      - minio
+      - media
     networks:
       - memes_net
 
@@ -39,6 +37,21 @@ services:
       - "9001:9001"
     volumes:
       - minio_data:/data
+    networks:
+      - memes_net
+
+  media:
+    build:
+      context: ./media
+    container_name: media
+    command: ./entrypoint.sh
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - minio
     networks:
       - memes_net
 

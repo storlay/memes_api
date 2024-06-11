@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.db import Base
+from db.db import Base
 
 
 class Memes(Base):
