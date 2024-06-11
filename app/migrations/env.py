@@ -7,6 +7,9 @@ from alembic import context
 
 from app.db.db import Base, DATABASE_URL
 
+# Models
+from app.memes.models import Memes  # noqa
+
 config = context.config
 
 if config.config_file_name is not None:
