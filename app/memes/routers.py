@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status, UploadFile, File
+from fastapi_pagination import Page, paginate
 
 from exceptions import FailedToCreateMemeException, IncorrectFileFormatException, IncorrectIDException
 from memes.service import MemesService
@@ -8,6 +9,15 @@ router = APIRouter(
     tags=["Public memes API"],
     prefix="/memes"
 )
+
+
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK
+)
+async def get_list_memes() -> Page[GetMemeDTO]:
+    list_memes = await MemesService.get_list()
+    return paginate(list_memes)
 
 
 @router.get(

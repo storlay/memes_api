@@ -13,6 +13,13 @@ from memes.shemas import GetMemeDTO
 class MemesService:
 
     @classmethod
+    async def get_list(cls) -> list[GetMemeDTO]:
+        query = select(Memes.__table__.columns)
+        async with async_session_maker() as session:
+            list_memes = await session.execute(query)
+            return list_memes.mappings().all()
+
+    @classmethod
     async def get_by_id(cls, meme_id: int) -> GetMemeDTO | None:
         query = (
             select(Memes.__table__.columns)
