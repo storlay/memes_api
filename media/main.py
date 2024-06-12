@@ -1,5 +1,6 @@
-from fastapi import FastAPI, status, UploadFile, File
+from fastapi import FastAPI, status, UploadFile, File, Depends
 
+from security.auth import get_current_user
 from minio_client import MinioClient
 
 app = FastAPI(
@@ -14,6 +15,9 @@ minio_client = MinioClient()
     "/upload",
     status_code=status.HTTP_201_CREATED
 )
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(
+    user: str = Depends(get_current_user),
+    file: UploadFile = File(...),
+):
     url = await minio_client.upload_file(file)
     return {"url": url}

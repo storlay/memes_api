@@ -40,8 +40,7 @@ class MinioClient:
             )
             url = await client.generate_presigned_url(
                 "get_object",
-                Params=params,
-                ExpiresIn=60 * 60
+                Params=params
             )
             return url
 
