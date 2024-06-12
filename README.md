@@ -16,6 +16,9 @@
 
 Выполнено в рамках [тестового задания](https://docs.google.com/document/d/1PC4WtKXcGEqRaklby5XI2S7FZy_AP6J37dH0ENsMxfw)
 
+- `app` — API для работы с мемами
+- `media` — Сервис для работы с изображениями (S3)
+
 ## Описание
 
 Асинхронный REST API сервис для работы с коллекцией мемов. 
