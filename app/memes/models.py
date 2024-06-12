@@ -9,3 +9,4 @@ class Memes(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     description: Mapped[str]
     image_url: Mapped[str]
+    image_name: Mapped[str]

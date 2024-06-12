@@ -26,7 +26,7 @@ class MinioClient:
         async with self.session.create_client("s3", **self.config) as client:
             yield client
 
-    async def upload_file(self, file: UploadFile) -> str:
+    async def upload_file(self, file: UploadFile) -> tuple[str, str]:
         filename = f"{uuid.uuid4()}.jpg"
         params = {"Bucket": self.bucket, "Key": filename}
         file_content = await file.read()
@@ -42,7 +42,11 @@ class MinioClient:
                 "get_object",
                 Params=params
             )
-            return url
+            return url, filename
+
+    async def delete_file(self, filename: str):
+        async with self.get_client() as client:
+            await client.delete_object(Bucket=self.bucket, Key=filename)
 
     async def check_bucket(self, client):
         response = await client.list_buckets()

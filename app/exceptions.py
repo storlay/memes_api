@@ -30,3 +30,8 @@ class IncorrectFileFormatException(AppException):
 class IncorrectIDException(AppException):
     detail = "Неверный ID мема"
     status_code = status.HTTP_400_BAD_REQUEST
+
+
+class FailedToDeleteImageException(AppException):
+    detail = "Ошибка при удалении изображения"
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR

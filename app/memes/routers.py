@@ -50,3 +50,11 @@ async def add_meme(
         raise FailedToCreateMemeException
 
     return new_meme
+
+
+@router.delete(
+    "/{meme_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def delete_meme(meme_id: int) -> None:
+    await MemesService.delete(meme_id)

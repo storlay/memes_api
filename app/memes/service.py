@@ -5,7 +5,7 @@ from fastapi import UploadFile, status
 from sqlalchemy import insert, select
 
 from db.db import async_session_maker
-from exceptions import FailedToUploadFileException
+from exceptions import FailedToUploadFileException, IncorrectIDException, FailedToDeleteImageException
 from memes.models import Memes
 from memes.shemas import GetMemeDTO
 
@@ -43,13 +43,16 @@ class MemesService:
         if response.status_code != status.HTTP_201_CREATED:
             raise FailedToUploadFileException
 
-        image_url = response.json()["url"]
+        response = response.json()
+        image_url = response["url"]
+        image_name = response["filename"]
 
         query = (
             insert(Memes)
             .values(
                 description=description,
-                image_url=image_url
+                image_url=image_url,
+                image_name=image_name
             )
             .returning(
                 Memes.__table__.columns
@@ -60,6 +63,26 @@ class MemesService:
             new_meme = await session.execute(query)
             await session.commit()
             return new_meme.mappings().one_or_none()
+
+    @classmethod
+    async def delete(cls, meme_id: int) -> None:
+        async with async_session_maker() as session:
+            meme = await session.get(Memes, meme_id)
+
+            if not meme:
+                raise IncorrectIDException
+
+            filename = meme.image_name
+            delete_url = os.environ.get("MEDIA_DELETE_ENDPOINT")
+            auth = (os.environ.get("MINIO_ROOT_USER"), os.environ.get("MINIO_ROOT_PASSWORD"))
+            response_json = {"filename": filename}
+            response = requests.delete(delete_url, json=response_json, auth=auth)
+
+            if response.status_code != status.HTTP_204_NO_CONTENT:
+                raise FailedToDeleteImageException
+
+            await session.delete(meme)
+            await session.commit()
 
     @classmethod
     def validate_file_format(cls, file: UploadFile) -> bool:
