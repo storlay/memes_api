@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 
+from memes.routers import (
+    router as memes_router
+)
+
 app = FastAPI(
     title="Meme's API",
     root_path="/api"
 )
+
+app.include_router(memes_router)
