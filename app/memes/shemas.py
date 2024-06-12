@@ -5,3 +5,4 @@ class GetMemeDTO(BaseModel):
     id: int
     description: str
     image_url: str
+    image_name: str

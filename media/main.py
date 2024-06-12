@@ -1,7 +1,7 @@
-from fastapi import FastAPI, status, UploadFile, File, Depends, Body
+from fastapi import Depends, FastAPI, File, UploadFile, status
 
-from security.auth import get_current_user
 from minio_client import MinioClient
+from security.auth import get_current_user
 
 app = FastAPI(
     title="MinIO storage",

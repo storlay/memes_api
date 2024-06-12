@@ -1,12 +1,9 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
-from db.db import Base, DATABASE_URL
-
+from db.db import DATABASE_URL, Base
 # Models
 from memes.models import Memes  # noqa
 

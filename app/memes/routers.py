@@ -1,8 +1,12 @@
-from fastapi import APIRouter, status, UploadFile, File
+from fastapi import APIRouter, File, UploadFile, status
 from fastapi_pagination import Page, paginate
 
-from exceptions import FailedToCreateMemeException, IncorrectFileFormatException, IncorrectIDException, \
-    FailedToUpdateMemeException
+from exceptions import (
+    FailedToCreateMemeException,
+    FailedToUpdateMemeException,
+    IncorrectFileFormatException,
+    IncorrectIDException
+)
 from memes.service import MemesService
 from memes.shemas import GetMemeDTO
 

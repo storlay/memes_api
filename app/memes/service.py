@@ -1,11 +1,15 @@
 import os
-import httpx
 
+import httpx
 from fastapi import UploadFile, status
 from sqlalchemy import insert, select, update
 
 from db.db import async_session_maker
-from exceptions import FailedToUploadFileException, IncorrectIDException, FailedToDeleteImageException
+from exceptions import (
+    FailedToDeleteImageException,
+    FailedToUploadFileException,
+    IncorrectIDException
+)
 from memes.models import Memes
 from memes.shemas import GetMemeDTO
 
