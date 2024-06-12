@@ -1,7 +1,8 @@
 from fastapi import APIRouter, status, UploadFile, File
 from fastapi_pagination import Page, paginate
 
-from exceptions import FailedToCreateMemeException, IncorrectFileFormatException, IncorrectIDException
+from exceptions import FailedToCreateMemeException, IncorrectFileFormatException, IncorrectIDException, \
+    FailedToUpdateMemeException
 from memes.service import MemesService
 from memes.shemas import GetMemeDTO
 
@@ -50,6 +51,27 @@ async def add_meme(
         raise FailedToCreateMemeException
 
     return new_meme
+
+
+@router.put(
+    "/{meme_id}",
+    status_code=status.HTTP_200_OK
+)
+async def update_meme(
+        meme_id: int,
+        new_description: str,
+        new_image: UploadFile = File(...)
+) -> GetMemeDTO:
+    updated_meme = await MemesService.update(
+        meme_id,
+        new_description,
+        new_image
+    )
+
+    if not updated_meme:
+        raise FailedToUpdateMemeException
+
+    return updated_meme
 
 
 @router.delete(

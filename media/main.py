@@ -28,7 +28,7 @@ async def upload_image(
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_image(
-        filename: str = Body(..., embed=True),
+        filename: str,
         user: str = Depends(get_current_user)
 ) -> None:
     await minio_client.delete_file(filename)

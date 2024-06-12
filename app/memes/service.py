@@ -1,8 +1,8 @@
 import os
+import httpx
 
-import requests
 from fastapi import UploadFile, status
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 
 from db.db import async_session_maker
 from exceptions import FailedToUploadFileException, IncorrectIDException, FailedToDeleteImageException
@@ -33,20 +33,9 @@ class MemesService:
     async def add(
             cls,
             description: str,
-            file: UploadFile
+            image: UploadFile
     ) -> GetMemeDTO | None:
-        upload_url = os.environ.get("MEDIA_UPLOAD_ENDPOINT")
-        auth = (os.environ.get("MINIO_ROOT_USER"), os.environ.get("MINIO_ROOT_PASSWORD"))
-        files = {"file": (file.filename, file.file, file.content_type)}
-        response = requests.post(upload_url, files=files, auth=auth)
-
-        if response.status_code != status.HTTP_201_CREATED:
-            raise FailedToUploadFileException
-
-        response = response.json()
-        image_url = response["url"]
-        image_name = response["filename"]
-
+        image_url, image_name = await cls.upload_image_in_s3(image)
         query = (
             insert(Memes)
             .values(
@@ -65,6 +54,37 @@ class MemesService:
             return new_meme.mappings().one_or_none()
 
     @classmethod
+    async def update(
+            cls,
+            meme_id: int,
+            new_description: str,
+            new_image: UploadFile
+    ) -> GetMemeDTO:
+        async with async_session_maker() as session:
+            meme = await session.get(Memes, meme_id)
+
+            if not meme:
+                raise IncorrectIDException
+
+            new_image_url, new_image_name = await cls.upload_image_in_s3(new_image)
+            await cls.delete_image_from_s3(meme.image_name)
+            query = (
+                update(Memes)
+                .where(Memes.id == meme_id)
+                .values(
+                    description=new_description,
+                    image_url=new_image_url,
+                    image_name=new_image_name
+                )
+                .returning(
+                    Memes.__table__.columns
+                )
+            )
+            updated_meme = await session.execute(query)
+            await session.commit()
+            return updated_meme.mappings().one_or_none()
+
+    @classmethod
     async def delete(cls, meme_id: int) -> None:
         async with async_session_maker() as session:
             meme = await session.get(Memes, meme_id)
@@ -72,15 +92,7 @@ class MemesService:
             if not meme:
                 raise IncorrectIDException
 
-            filename = meme.image_name
-            delete_url = os.environ.get("MEDIA_DELETE_ENDPOINT")
-            auth = (os.environ.get("MINIO_ROOT_USER"), os.environ.get("MINIO_ROOT_PASSWORD"))
-            response_json = {"filename": filename}
-            response = requests.delete(delete_url, json=response_json, auth=auth)
-
-            if response.status_code != status.HTTP_204_NO_CONTENT:
-                raise FailedToDeleteImageException
-
+            await cls.delete_image_from_s3(meme.image_name)
             await session.delete(meme)
             await session.commit()
 
@@ -89,3 +101,30 @@ class MemesService:
         file_format = file.filename.split(".")[-1].lower()
         correct_formats = {"png", "jpg", "jpeg", "webp"}
         return file_format in correct_formats
+
+    @staticmethod
+    async def upload_image_in_s3(file: UploadFile) -> tuple[str, str]:
+        upload_url = os.environ.get("MEDIA_UPLOAD_ENDPOINT")
+        auth = (os.environ.get("MINIO_ROOT_USER"), os.environ.get("MINIO_ROOT_PASSWORD"))
+        files = {"file": (file.filename, file.file, file.content_type)}
+        async with httpx.AsyncClient(auth=auth) as client:
+            response = await client.post(upload_url, files=files)
+
+        if response.status_code != status.HTTP_201_CREATED:
+            raise FailedToUploadFileException
+
+        response = response.json()
+        image_url = response["url"]
+        image_name = response["filename"]
+        return image_url, image_name
+
+    @staticmethod
+    async def delete_image_from_s3(filename: str) -> None:
+        delete_url = os.environ.get("MEDIA_DELETE_ENDPOINT")
+        auth = (os.environ.get("MINIO_ROOT_USER"), os.environ.get("MINIO_ROOT_PASSWORD"))
+        params = {"filename": filename}
+        async with httpx.AsyncClient(auth=auth) as client:
+            response = await client.delete(delete_url, params=params)
+
+        if response.status_code != status.HTTP_204_NO_CONTENT:
+            raise FailedToDeleteImageException

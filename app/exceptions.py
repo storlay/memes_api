@@ -22,6 +22,11 @@ class FailedToCreateMemeException(AppException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
+class FailedToUpdateMemeException(AppException):
+    detail = "Ошибка при обновлении мема"
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+
 class IncorrectFileFormatException(AppException):
     detail = "Неверный формат файла. Допустимые: .png, .jpg, .jpeg, .webp"
     status_code = status.HTTP_400_BAD_REQUEST
