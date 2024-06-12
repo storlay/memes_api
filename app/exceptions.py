@@ -25,3 +25,8 @@ class FailedToCreateMemeException(AppException):
 class IncorrectFileFormatException(AppException):
     detail = "Неверный формат файла. Допустимые: .png, .jpg, .jpeg, .webp"
     status_code = status.HTTP_400_BAD_REQUEST
+
+
+class IncorrectIDException(AppException):
+    detail = "Неверный ID мема"
+    status_code = status.HTTP_400_BAD_REQUEST

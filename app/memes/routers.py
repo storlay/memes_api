@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, UploadFile, File
 
-from exceptions import FailedToCreateMemeException, IncorrectFileFormatException
+from exceptions import FailedToCreateMemeException, IncorrectFileFormatException, IncorrectIDException
 from memes.service import MemesService
 from memes.shemas import GetMemeDTO
 
@@ -8,6 +8,19 @@ router = APIRouter(
     tags=["Public memes API"],
     prefix="/memes"
 )
+
+
+@router.get(
+    "/{meme_id}",
+    status_code=status.HTTP_200_OK
+)
+async def get_meme(meme_id: int) -> GetMemeDTO:
+    meme = await MemesService.get_by_id(meme_id)
+
+    if not meme:
+        raise IncorrectIDException
+
+    return meme
 
 
 @router.post(
